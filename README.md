@@ -51,3 +51,18 @@ This command maps port 53 on both TCP and UDP from the container to port 53 on t
 
 Currently, the proxy is pre-configured to use Cloudflare's 1.1.1.1 DNS-over-TLS service. You can modify the source code to change the DNS-over-TLS server or add additional configuration options. In the future this should be pass as a environment variable or some type of configuration for the DNS server that runs on TLS.
 
+# Q&A
+
+### Imagine this proxy being deployed in an infrastructure. What would be the security concerns you would raise?
+- There are no Rate Limiting or access control so it can be used for DNS amplification attacks
+- If there is a custom DNS server, ensure that the TLS connection to the DNS-over-TLS server is correctly configured.
+### How would you integrate that solution in a distributed, microservices-oriented and containerized architecture?
+*Kubernetes Service:* Define a Service in Kubernetes to expose the DNS proxy. Depending on your network policies, this could be an internal service or exposed externally. As we already have a dockerfile we can maintain lightweight and secure as the image of this service pods using a Kubernetes Deployment. 
+
+With Kubernetes we can scale, load balance and monitor the proxy without adding on top of the complexity of the container.
+
+Outside Kubernetes, it can be deployed as container in your private network (e.g. VPC in AWS). 
+
+### What other improvements do you think would be interesting to add to the project?
+- Implement checks to validate DNS queries and responses to prevent DNS spoofing or cache poisoning attacks.
+- Proper error handling in the application is necessary to prevent leakage of sensitive information through error messages.
